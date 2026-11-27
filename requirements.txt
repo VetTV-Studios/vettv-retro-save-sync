@@ -1,0 +1,5 @@
+# Runtime: Python 3.11+ standard library only (core + CLI).
+# Optional desktop GUI:
+PySide6-Essentials>=6.8,<6.9
+# Dev:
+# pytest>=8
