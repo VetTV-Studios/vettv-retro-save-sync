@@ -48,7 +48,7 @@ retro-save-sync gui --demo                             # GUI with a safe demo da
 ```
 
 ## Builds
-**Download:** [v0.1.0 release](https://github.com/VetTV-Studios/vettv-retro-save-sync/releases/tag/v0.1.0) (Linux AppImage + Windows `.exe`).
+**Download:** [v0.1.1 release](https://github.com/VetTV-Studios/vettv-retro-save-sync/releases/latest) (Linux AppImage + Windows `.exe`).
 
 The [`build`](.github/workflows/build.yml) GitHub Actions workflow (manual run or `v*` tag) builds a Linux **AppImage** and a Windows **`.exe`** with PyInstaller ([`packaging/retro-save-sync.spec`](packaging/retro-save-sync.spec)) and publishes them to a GitHub Release on tags.
 
