@@ -48,7 +48,9 @@ retro-save-sync gui --demo                             # GUI with a safe demo da
 ```
 
 ## Builds
-The [`build`](.github/workflows/build.yml) GitHub Actions workflow (manual run or `v*` tag) produces a Linux **AppImage** and a Windows **`.exe`** with PyInstaller ([`packaging/retro-save-sync.spec`](packaging/retro-save-sync.spec)).
+**Download:** [v0.1.0 release](https://github.com/VetTV-Studios/vettv-retro-save-sync/releases/tag/v0.1.0) (Linux AppImage + Windows `.exe`).
+
+The [`build`](.github/workflows/build.yml) GitHub Actions workflow (manual run or `v*` tag) builds a Linux **AppImage** and a Windows **`.exe`** with PyInstaller ([`packaging/retro-save-sync.spec`](packaging/retro-save-sync.spec)) and publishes them to a GitHub Release on tags.
 
 ## Tests
 ```sh
@@ -60,3 +62,6 @@ See [`PLAN.md`](PLAN.md) for architecture and path maps. The marketing/docs site
 
 ---
 Made by [VetTV Studios](https://vettvstudios.com). Not affiliated with RetroArch/Libretro, PCSX2, or Dolphin.
+
+## License
+MIT. See [LICENSE](LICENSE).

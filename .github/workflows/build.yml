@@ -1,4 +1,3 @@
-
 name: build
 
 on:
@@ -19,17 +18,26 @@ jobs:
           python-version: "3.12"
       - name: Install build deps
         run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 file
           python -m pip install --upgrade pip
           pip install pyinstaller "PySide6-Essentials>=6.8,<6.9"
           pip install -e .
+      - name: Run tests
+        run: |
+          pip install pytest
+          pytest
       - name: PyInstaller
-        run: pyinstaller packaging/retro-save-sync.spec
+        run: pyinstaller --noconfirm packaging/retro-save-sync.spec
       - name: Wrap AppImage
+        env:
+          ARCH: x86_64
+          APPIMAGE_EXTRACT_AND_RUN: "1"
         run: |
           set -e
           mkdir -p AppDir/usr/bin AppDir/usr/share/applications AppDir/usr/share/icons/hicolor/256x256/apps
           cp dist/RetroSaveSync AppDir/usr/bin/retro-save-sync
-          cat > AppDir/usr/share/applications/retro-save-sync.desktop << 'DESK'
+          cat > AppDir/retro-save-sync.desktop << 'DESK'
           [Desktop Entry]
           Type=Application
           Name=VetTV Retro Save Sync
@@ -37,9 +45,13 @@ jobs:
           Icon=retro-save-sync
           Categories=Utility;Game;
           DESK
-          cp AppDir/usr/share/applications/retro-save-sync.desktop AppDir/
-          # A generated icon can be added later; appimagetool will still wrap the binary.
-          curl -sL https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -o appimagetool
+          sed -i 's/^ *//' AppDir/retro-save-sync.desktop
+          cp AppDir/retro-save-sync.desktop AppDir/usr/share/applications/
+          cp packaging/retro-save-sync.png AppDir/retro-save-sync.png
+          cp packaging/retro-save-sync.png AppDir/usr/share/icons/hicolor/256x256/apps/
+          printf '#!/bin/sh\nHERE="$(dirname "$(readlink -f "$0")")"\nif [ $# -eq 0 ]; then set -- gui; fi\nexec "$HERE/usr/bin/retro-save-sync" "$@"\n' > AppDir/AppRun
+          chmod +x AppDir/AppRun
+          curl -sSL https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -o appimagetool
           chmod +x appimagetool
           ./appimagetool AppDir RetroSaveSync-x86_64.AppImage
       - uses: actions/upload-artifact@v4
@@ -60,8 +72,44 @@ jobs:
           pip install pyinstaller "PySide6-Essentials>=6.8,<6.9"
           pip install -e .
       - name: PyInstaller
-        run: pyinstaller packaging/retro-save-sync.spec
+        run: pyinstaller --noconfirm packaging/retro-save-sync.spec
       - uses: actions/upload-artifact@v4
         with:
           name: windows-exe
           path: dist/RetroSaveSync.exe
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux-appimage, windows-exe]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -e
+          cd artifacts
+          sha256sum linux-appimage/RetroSaveSync-x86_64.AppImage windows-exe/RetroSaveSync.exe | sed 's#[a-z-]*/##' > SHA256SUMS.txt
+          cat > ../notes.md << EOF2
+          **VetTV Retro Save Sync ${TAG}**: safe, reversible save sync for RetroArch, PCSX2, Dolphin and custom folders on Linux, SteamOS and Windows.
+
+          - **Linux / SteamOS:** download \`RetroSaveSync-x86_64.AppImage\`, run \`chmod +x RetroSaveSync-x86_64.AppImage\`, then launch it.
+          - **Windows:** download \`RetroSaveSync.exe\` and run it (unsigned build, so SmartScreen may ask you to confirm).
+          - Checksums are in \`SHA256SUMS.txt\`.
+
+          Website: https://vettv-retro-save-sync.vercel.app
+          EOF2
+          sed -i 's/^ *//' ../notes.md
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" linux-appimage/RetroSaveSync-x86_64.AppImage windows-exe/RetroSaveSync.exe SHA256SUMS.txt --clobber
+          else
+            gh release create "$TAG" --title "Retro Save Sync $TAG" --notes-file ../notes.md \
+              linux-appimage/RetroSaveSync-x86_64.AppImage windows-exe/RetroSaveSync.exe SHA256SUMS.txt
+          fi

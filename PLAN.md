@@ -9,7 +9,7 @@ VetTV Studios tool for safe, reversible sync of emulator saves across Linux, Ste
 - **pytest** for the automated suite.
 - **git CLI** for the git target (already present on Linux/macOS; Git for Windows on that side).
 - **rclone CLI** (optional adapter): invoked when installed, otherwise reported as unavailable. Folder and git targets keep working.
-- **Packaging (v1 spec only, not executed here):** PyInstaller onefile → Linux AppImage wrapper + Windows `.exe` via GitHub Actions. See `packaging/github-actions-build.yml`.
+- **Packaging (v1 spec only, not executed here):** PyInstaller onefile → Linux AppImage wrapper + Windows `.exe` via GitHub Actions. See `.github/workflows/build.yml`.
 
 Why this stack: tiny core footprint, no service or cloud spend, one codebase for CLI + GUI, and a GUI toolkit that already ships on SteamOS Desktop and Windows.
 
@@ -80,7 +80,7 @@ Layout (never store docs or screenshots in `dist/` or `build/`):
 
 ## Linux + Windows GitHub Actions packaging plan
 
-Not run in this prototype (no repo, no push, no release). The template lives at `packaging/github-actions-build.yml` and the PyInstaller spec at `packaging/retro-save-sync.spec`.
+Not run in this prototype (no repo, no push, no release). The template lives at `.github/workflows/build.yml` and the PyInstaller spec at `packaging/retro-save-sync.spec`.
 
 1. When Vet approves a repo, copy the workflow to `.github/workflows/build.yml`.
 2. `ubuntu-latest`: install Qt deps if needed, `pip install pyinstaller PySide6-Essentials`, `pyinstaller packaging/retro-save-sync.spec`, wrap the onefile binary with `appimagetool` into `RetroSaveSync-x86_64.AppImage`.

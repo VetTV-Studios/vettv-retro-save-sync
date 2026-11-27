@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "VetTV Retro Save Sync — safe, reversible save sync for RetroArch, PCSX2, Dolphin, and custom paths."
 readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
 authors = [{ name = "VetTV Studios" }]
 dependencies = []
 
